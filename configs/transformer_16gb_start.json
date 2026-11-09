@@ -1,0 +1,24 @@
+{
+  "description": "Planning defaults for a future small character-level decoder transformer on 16 GB Apple Silicon. Not wired to a trainer yet.",
+  "device": "mps",
+  "dtype": "float32",
+  "random_seed": 42,
+  "architecture": {
+    "n_layers": 4,
+    "n_heads": 4,
+    "d_model": 128,
+    "max_sequence_length": 128
+  },
+  "training": {
+    "microbatch_size": 4,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0003,
+    "optimizer": "adamw"
+  },
+  "evaluation": {
+    "holdout_split": 0.1,
+    "record_validation_loss": true,
+    "record_tokens_per_second": true,
+    "record_memory_pressure": true
+  }
+}
