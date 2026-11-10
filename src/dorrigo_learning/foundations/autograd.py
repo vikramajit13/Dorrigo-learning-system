@@ -26,26 +26,73 @@ class Value:
 
     def __add__(self, other: Value | float) -> Value:
         # TODO: forward result, graph parents, and gradient contributions.
-        raise NotImplementedError("Implement Value.__add__")
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, _children=(self, other))
+        def _backward() -> None:
+            # d(self + other)/dself = 1, d(self + other)/dother = 1
+            self.grad += out.grad * 1.0
+            other.grad += out.grad * 1.0
+        
+        out._backward = _backward
+        return out
+        #raise NotImplementedError("Implement Value.__add__")
 
     def __radd__(self, other: Value | float) -> Value:
         return self + other
 
     def __mul__(self, other: Value | float) -> Value:
         # TODO: forward result, graph parents, and gradient contributions.
-        raise NotImplementedError("Implement Value.__mul__")
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, _children=(self, other))
+
+        def _backward() -> None:
+            # d(self * other)/dself = other, d(self * other)/dother = self
+            self.grad += out.grad * other.data
+            other.grad += out.grad * self.data
+
+        out._backward = _backward
+        return out
 
     def __rmul__(self, other: Value | float) -> Value:
         return self * other
 
     def __pow__(self, exponent: float) -> Value:
         # TODO: implement scalar-power derivative.
-        raise NotImplementedError("Implement Value.__pow__")
+        out = Value(self.data ** exponent, _children=(self,))
+        def _backward() -> None:
+            self.grad += out.grad * exponent * (self.data ** (exponent - 1))
+        out._backward = _backward
+        return out
 
     def relu(self) -> Value:
         # TODO: ReLU forward pass and local derivative.
-        raise NotImplementedError("Implement Value.relu")
+        out = Value(max(0, self.data), _children=(self,))
+        def _backward() -> None:
+            self.grad += out.grad * (1 if self.data > 0 else 0)
+        out._backward = _backward
+        return out
 
     def backward(self) -> None:
         # TODO: graph traversal, seed gradient=1, reverse-mode accumulation.
-        raise NotImplementedError("Implement Value.backward")
+        ordered_nodes: list[Value] = []
+        visited: set[Value] = set()
+        
+        def build_topo(v: Value) -> None:
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build_topo(child)
+                ordered_nodes.append(v)
+
+        build_topo(self)
+        # Reverse-mode accumulation.
+        # 2. Reset gradients and start the backward pass
+        for node in ordered_nodes:
+            node.grad = 0.0
+            
+        # The derivative of the output with respect to itself is always 1
+        self.grad = 1.0 
+        
+        # Traverse backwards through the sorted computational graph
+        for node in reversed(ordered_nodes):
+            node._backward()
