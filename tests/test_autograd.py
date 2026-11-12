@@ -2,7 +2,7 @@
 
 import pytest
 
-from dorrigo_learning.foundations.autograd import Value
+from exercise2.src.dorrigo_learning.foundations.autograd import Value
 
 
 def test_forward_arithmetic() -> None:
