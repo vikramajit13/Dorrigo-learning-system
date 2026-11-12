@@ -90,12 +90,24 @@ class MLP:
         # TODO: build Layer(sizes[i], sizes[i+1]) for each consecutive pair.
         # Use hidden_activation on all but the final layer; use output_activation
         # on the final layer (regression output should usually be linear).
-        raise NotImplementedError
+        rng = random.Random(seed)
+        self.layers = []
+        for i in range(len(sizes) - 1):
+            activation = (
+                hidden_activation if i < len(sizes) - 2 else output_activation
+            )
+            self.layers.append(
+                Layer(n_inputs=sizes[i], n_outputs=sizes[i + 1], activation=activation, rng=rng)
+            )
+        # raise NotImplementedError
 
     def __call__(self, inputs: Sequence[Value | float]) -> list[Value]:
         # TODO: feed the output list of each layer to the next layer.
-        raise NotImplementedError
+        current: Sequence[Value | float] = inputs
+        for layer in self.layers:
+            current = layer(current)
+        return [v if isinstance(v, Value) else Value(v) for v in current]
 
     def parameters(self) -> list[Value]:
         # TODO: collect all layer parameters.
-        raise NotImplementedError
+        return [param for layer in self.layers for param in layer.parameters()] 
