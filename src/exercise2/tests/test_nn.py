@@ -2,9 +2,9 @@
 import random
 import pytest
 
-from exercise2.src.dorrigo_learning.foundations.autograd import Value
-from dorrigo_learning.foundations.nn import Neuron, Layer, MLP
-from dorrigo_learning.foundations.optim import mse, sgd_step
+from src.exercise2.src.dorrigo_learning.foundations.autograd import Value
+from src.exercise2.src.dorrigo_learning.foundations.nn import Neuron, Layer, MLP
+from src.exercise2.src.dorrigo_learning.foundations.optim import mse, sgd_step
 
 
 def test_neuron_forward_and_gradient():

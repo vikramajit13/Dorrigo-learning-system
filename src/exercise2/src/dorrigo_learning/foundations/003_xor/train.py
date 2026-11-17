@@ -89,10 +89,61 @@ def train_full_batch(
     Hint: in every iteration, rebuild the graph. Do not keep a reference to a
     loss from an earlier parameter update. Include a step-0 entry if useful.
     """
-    if steps <= 0 or log_every <= 0 or learning_rate <= 0:
-        raise ValueError("steps, log_every, and learning_rate must be positive")
+    
+def train_full_batch(
+    model: MLP,
+    *,
+    steps: int,
+    learning_rate: float,
+    log_every: int = 500,
+) -> list[HistoryEntry]:
 
-    raise NotImplementedError("Implement train_full_batch for Exercise 003")
+    if steps <= 0 or log_every <= 0 or learning_rate <= 0:
+        raise ValueError(
+            "steps, log_every, and learning_rate must be positive"
+        )
+
+    history: list[HistoryEntry] = []
+
+    inputs = [x for x, _ in XOR_DATA]
+    targets = [y for _, y in XOR_DATA]
+
+    # Record the initial model performance
+    initial_predictions = [model(x)[0] for x in inputs]
+    initial_loss = mse(initial_predictions, targets)
+
+    history.append({"step": 0, "mse": initial_loss.data})
+
+    for step in range(1, steps + 1):
+
+        # Forward pass
+        predictions = [model(x)[0] for x in inputs]
+
+        # Compute loss
+        loss = mse(predictions, targets)
+
+        # Backward pass
+        loss.backward()
+
+        # Update parameters
+        sgd_step(model.parameters(), learning_rate)
+
+        # Evaluate the UPDATED model
+        if step % log_every == 0 or step == steps:
+
+            updated_predictions = [
+                model(x)[0] for x in inputs
+            ]
+
+            updated_loss = mse(updated_predictions, targets)
+
+            history.append({
+                "step": step,
+                "mse": updated_loss.data
+            })
+
+    return history
+
 
 
 def run_one(*, activation: str, seed: int, steps: int, lr: float) -> Report:

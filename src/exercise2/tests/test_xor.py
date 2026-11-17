@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from dorrigo_learning.foundations.nn import MLP
-from dorrigo_learning.foundations.optim import mse
+from src.exercise2.src.dorrigo_learning.foundations.nn import MLP
+from src.exercise2.src.dorrigo_learning.foundations.optim import mse
 
-_SCRIPT = Path(__file__).resolve().parents[1] / "experiments" / "003_xor" / "train.py"
+_SCRIPT = Path(__file__).resolve().parents[1] / "src"/"dorrigo_learning"/"foundations"/"003_xor" / "train.py"
 _SPEC = importlib.util.spec_from_file_location("dorrigo_xor_experiment", _SCRIPT)
 assert _SPEC is not None and _SPEC.loader is not None
 xor = importlib.util.module_from_spec(_SPEC)
