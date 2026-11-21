@@ -12,6 +12,7 @@ This is intentionally a scaffold, not a completed solution.
 """
 
 from __future__ import annotations
+import math
 
 
 class Value:
@@ -69,6 +70,41 @@ class Value:
         out = Value(max(0, self.data), _children=(self,))
         def _backward() -> None:
             self.grad += out.grad * (1 if self.data > 0 else 0)
+        out._backward = _backward
+        return out
+
+
+    def exp(self) -> Value:
+        """Exponential function: y = e^x."""
+
+        result = math.exp(self.data)
+
+        out = Value(result, _children=(self,))
+
+        def _backward() -> None:
+            # d(e^x)/dx = e^x
+            self.grad += out.grad * out.data
+
+        out._backward = _backward
+        return out
+
+
+    def sigmoid(self) -> Value:
+        """Numerically stable sigmoid: 1 / (1 + e^-x)."""
+
+        if self.data >= 0:
+            z = math.exp(-self.data)
+            result = 1.0 / (1.0 + z)
+        else:
+            z = math.exp(self.data)
+            result = z / (1.0 + z)
+
+        out = Value(result, _children=(self,))
+
+        def _backward() -> None:
+            # sigmoid'(x) = sigmoid(x) * (1 - sigmoid(x))
+            self.grad += out.grad * out.data * (1.0 - out.data)
+
         out._backward = _backward
         return out
 
